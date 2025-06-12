@@ -1,113 +1,121 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>웹프로그래밍 - 팀 프로젝트</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css" />
+    <title>Session 설명</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="session_style.css" />
   </head>
+
   <body>
-    <!-- 네비게이션 -->
-    <nav class="bg-gray-800 text-white p-4 sticky top-0 z-50">
-      <div class="container mx-auto flex justify-between items-center">
-        <h1 class="text-2xl font-bold">웹프로그래밍</h1>
-        <ul class="flex space-x-6">
-          <li>
-            <a href="#home" class="hover:text-indigo-300 transition">홈</a>
-          </li>
-          <li>
-            <a href="#project" class="hover:text-indigo-300 transition"
-              >프로젝트</a
-            >
-          </li>
-          <li>
-            <a href="#team" class="hover:text-indigo-300 transition">팀</a>
-          </li>
+    <header>
+      <nav class="navbar">
+        <div class="logo">세션 개념 설명</div>
+        <ul class="nav-links">
+          <li><a href="#what">세션이란?</a></li>
+          <li><a href="#how">작동 원리</a></li>
+          <li><a href="#code">코드 예시</a></li>
+          <li><a href="#security">보안 이슈</a></li>
+          <li><a href="index.html">홈</a></li>
         </ul>
-      </div>
-    </nav>
+      </nav>
+    </header>
 
-    <!-- 히어로 섹션 -->
-    <section id="home" class="hero">
-      <div class="relative z-10">
-        <h1 class="text-5xl font-bold mb-4 animate-pulse">웹프로그래밍</h1>
-        <p class="text-xl mb-6">쿠키와 세션</p>
-        <a
-          href="#project"
-          class="bg-indigo-600 text-white py-2 px-6 rounded-full hover:bg-indigo-700 transition"
-          >쿠키와 세션</a
-        >
+    <section class="hero">
+      <h1>세션(Session) 이해하기</h1>
+      <p>웹 서비스에서의 사용자 상태 유지 메커니즘을 상세하게 알아보자</p>
+      <button onclick="scrollToSection('what')">시작하기</button>
+    </section>
+
+    <section id="what" class="content-section">
+      <h2>세션(Session)이란?</h2>
+      <p>
+        세션은
+        <span class="highlight">HTTP가 상태 비저장(stateless) 프로토콜</span
+        >이기 때문에, 사용자의 로그인 상태나 장바구니 정보와 같은 상태를
+        유지하기 위해 사용됩니다. 세션은 서버에 저장되며, 클라이언트는
+        일반적으로 <strong>세션 ID</strong>만을 쿠키로 보관합니다.
+      </p>
+    </section>
+
+    <section id="how" class="content-section">
+      <h2>세션 작동 원리</h2>
+      <ol>
+        <li>클라이언트가 로그인 정보를 서버에 전송합니다.</li>
+        <li>
+          서버는 사용자 인증이 완료되면 고유한 <strong>세션 ID</strong>를
+          생성합니다.
+        </li>
+        <li>
+          세션 ID와 함께 서버에 사용자 정보를 저장합니다 (예: 메모리, DB).
+        </li>
+        <li>
+          세션 ID는 <span class="highlight">Set-Cookie</span> 헤더를 통해
+          브라우저에 전달됩니다.
+        </li>
+        <li>클라이언트는 이후 모든 요청에 이 세션 ID를 자동으로 포함합니다.</li>
+        <li>서버는 해당 ID를 바탕으로 사용자 상태를 확인합니다.</li>
+      </ol>
+    </section>
+
+    <section id="code" class="content-section">
+      <h2>세션 처리 코드 예시 (Express.js)</h2>
+      <div class="code-box">
+        const express = require('express');<br />
+        const session = require('express-session');<br />
+        const app = express();<br /><br />
+
+        app.use(session({<br />
+        secret: 'mySecretKey',<br />
+        resave: false,<br />
+        saveUninitialized: true,<br />
+        cookie: { secure: false }<br />
+        }));<br /><br />
+
+        app.get('/', (req, res) => {<br />
+        if (req.session.views) {<br />
+        req.session.views++<br />
+        res.send(`Views: ${req.session.views}`);<br />
+        } else {<br />
+        req.session.views = 1;<br />
+        res.send('첫 방문입니다.');<br />
+        }<br />
+        });
       </div>
     </section>
 
-    <!-- 프로젝트 섹션 -->
-    <section id="project" class="py-16 bg-white">
-      <div class="container mx-auto px-4">
-        <h2 class="text-4xl font-bold text-center mb-12 fade-in">
-          우리의 프로젝트
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div class="card bg-gray-100 p-6 rounded-lg fade-in">
-            <h3 class="text-2xl font-semibold mb-4">쿠키</h3>
-            <p>쿠키에 대한 설명</p>
-            <h2>이벤트 참여 버튼을 누르세요!</h2>
-            <form action="http://localhost:8000/change_pw.php" method="POST">
-              <input type="hidden" name="new_pw" value="hacked123" />
-              <button type="submit">무료 경품 받기 🎁</button>
-            </form>
-          </div>
-          <div class="card bg-gray-100 p-6 rounded-lg fade-in">
-            <h3 class="text-2xl font-semibold mb-4">세션</h3>
-            <p>세션에 대해서 알고 싶으면 밑에 있는 세션을 눌러주세요.</p>
-            <a href="session.html"
-              ><button class="text-indigo-600 hover:underline">세션</button></a
-            >
-          </div>
-        </div>
-      </div>
-    </section>
-    <!-- AI 활용 섹션 -->
-    <section id="ai" class="py-16 bg-gray-100">
-      <div class="container mx-auto px-4">
-        <h2 class="text-4xl font-bold text-center mb-12 fade-in">
-          AI 서비스 활용
-        </h2>
-        <div class="card bg-white p-6 rounded-lg fade-in">
-          <p>xAI의 Grok 3를 활용하여 프로젝트 개발을 강화했습니다:</p>
-          <ul class="list-disc pl-5 mt-4">
-            <li>
-              <strong>코드 최적화</strong>: Grok 3의 제안을 통해 JavaScript
-              함수를 최적화하여 성능을 20% 향상시켰습니다.
-            </li>
-            <li>
-              <strong>UI 디자인</strong>: Grok 3를 사용해 디자인 영감을 얻고
-              접근성을 위한 색상 체계를 검증했습니다.
-            </li>
-            <li>
-              <strong>디버깅</strong>: 실시간 협업 기능의 버그를 식별하고
-              해결하는 데 도움을 받았습니다.
-            </li>
-            <li>
-              <strong>콘텐츠 생성</strong>: 웹페이지와 문서의 초기 콘텐츠 초안을
-              작성하는 데 활용했습니다.
-            </li>
+    <section id="security" class="content-section">
+      <h2>세션 관련 보안 이슈</h2>
+      <ul>
+        <li>
+          <strong>세션 하이재킹(Session Hijacking):</strong> 공격자가
+          <span class="highlight">세션 ID를 탈취</span>하여 사용자로 가장
+        </li>
+        <li>
+          <strong>세션 고정(Session Fixation):</strong> 세션 ID를 미리 할당하여
+          피해자에게 사용하게 함
+        </li>
+        <li>
+          <strong>보안 대책:</strong>
+          <ul>
+            <li>HTTPS 사용으로 세션 ID 탈취 방지</li>
+            <li>로그인 시 세션 ID 재생성</li>
+            <li>HttpOnly, Secure 속성 사용</li>
+            <li>짧은 세션 유효 시간 설정</li>
           </ul>
-        </div>
-      </div>
+        </li>
+      </ul>
     </section>
 
-    <!-- 푸터 -->
-    <footer class="bg-gray-800 text-white py-8">
-      <div class="container mx-auto px-4 text-center">
-        <p>© 2025 웹프로그래밍 2조. 모든 권리 보유.</p>
-      </div>
+    <footer>
+      <p>&copy; 2025 웹프로그래밍 2조.</p>
     </footer>
 
-    <script src="main.js"></script>
+    <script>
+      function scrollToSection(id) {
+        document.getElementById(id).scrollIntoView({ behavior: "smooth" });
+      }
+    </script>
   </body>
 </html>
